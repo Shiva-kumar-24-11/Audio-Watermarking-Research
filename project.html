@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Audio Watermarking & Signal Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .upload-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            color: #4cc9f0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(76, 201, 240, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #4cc9f0;
+            background: rgba(76, 201, 240, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #4cc9f0;
+        }
+
+        .upload-text {
+            margin-bottom: 20px;
+        }
+
+        .browse-btn {
+            background: #4cc9f0;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        .browse-btn:hover {
+            background: #3aa8d0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .file-details {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .controls-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #4cc9f0;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            cursor: pointer;
+        }
+
+        .watermark-text {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .watermark-text::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4cc9f0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3aa8d0;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .visualization-section {
+            flex: 100%;
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .visualization-section h2 {
+            margin-bottom: 20px;
+            color: #4cc9f0;
+            text-align: center;
+        }
+
+        .spectrum-comparison {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .spectrum-container {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .spectrum-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #4cc9f0;
+        }
+
+        .spectrum-canvas {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .audio-players {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .audio-player {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .player-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #4cc9f0;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: #4cc9f0;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            background: #3aa8d0;
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4cc9f0;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            cursor: pointer;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+        }
+
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+
+        .download-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .download-btn {
+            background: #f72585;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(247, 37, 133, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background: #e01e76;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(247, 37, 133, 0.4);
+        }
+
+        .authentication-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #4cc9f0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .spectrum-comparison, .audio-players {
+                flex-direction: column;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .method-description {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .method-highlight {
+            color: #4cc9f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced Audio Watermarking System</h1>
+            <p class="subtitle">Embed audio watermarks using GBT-SVD and deep learning techniques with RF transmission optimization</p>
+        </header>
+
+        <div class="main-content">
+            <section class="upload-section">
+                <h2 class="section-title">Upload Audio Files</h2>
+                
+                <div class="control-group">
+                    <h3>Host Audio (Cover)</h3>
+                    <div class="upload-area" id="hostUploadArea">
+                        <div class="upload-icon">🎵</div>
+                        <p class="upload-text">Drag & drop host audio file here</p>
+                        <p class="upload-text">or</p>
+                        <button class="browse-btn">Browse Files</button>
+                        <input type="file" id="hostFileInput" class="file-input" accept="audio/*">
+                    </div>
+                    
+                    <div class="file-info" id="hostFileInfo" style="display: none;">
+                        <p class="file-name" id="hostFileName">filename.wav</p>
+                        <div class="file-details">
+                            <span id="hostFileSize">0 MB</span>
+                            <span id="hostFileDuration">0:00</span>
+                            <span id="hostFileType">WAV</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Watermark Audio</h3>
+                    <div class="upload-area" id="watermarkUploadArea">
+                        <div class="upload-icon">🔒</div>
+                        <p class="upload-text">Drag & drop watermark audio here</p>
+                        <p class="upload-text">or</p>
+                        <button class="browse-btn">Browse Files</button>
+                        <input type="file" id="watermarkFileInput" class="file-input" accept="audio/*">
+                    </div>
+                    
+                    <div class="file-info" id="watermarkFileInfo" style="display: none;">
+                        <p class="file-name" id="watermarkFileName">watermark.wav</p>
+                        <div class="file-details">
+                            <span id="watermarkFileSize">0 MB</span>
+                            <span id="watermarkFileDuration">0:00</span>
+                            <span id="watermarkFileType">WAV</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <h2 class="section-title">Watermarking Controls</h2>
+                
+                <div class="control-group">
+                    <h3>Watermarking Method</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="watermarkMethod" value="gbt-svd" checked>
+                            GBT-SVD
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="watermarkMethod" value="deep-learning">
+                            Deep Learning (WAKE)
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="watermarkMethod" value="hybrid">
+                            Hybrid Approach
+                        </label>
+                    </div>
+                    
+                    <div class="method-description" id="methodDescription">
+                        <span class="method-highlight">GBT-SVD:</span> Graph-Based Transform with Singular Value Decomposition. Robust against compression and noise attacks. Based on Farzaneh & Toroghi research.
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Watermark Strength</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Low</span>
+                            <span id="strengthValue">Medium</span>
+                            <span>High</span>
+                        </div>
+                        <input type="range" min="1" max="10" value="5" class="slider" id="strengthSlider">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>RF Transmission Optimization</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="rfOptimization" value="basic" checked>
+                            Basic
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="rfOptimization" value="advanced">
+                            Advanced
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="rfOptimization" value="maximum">
+                            Maximum Robustness
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Authentication Password</h3>
+                    <input type="password" class="password-input" id="authPassword" placeholder="Set password for audio retrieval">
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="embedBtn">Embed Watermark Audio</button>
+                    <button class="btn btn-secondary" id="authenticateBtn">Authenticate & Extract</button>
+                </div>
+            </section>
+
+            <section class="visualization-section">
+                <h2>Signal Analysis & Watermark Extraction</h2>
+                
+                <div class="spectrum-comparison">
+                    <div class="spectrum-container">
+                        <div class="spectrum-title">Host Audio Spectrum</div>
+                        <canvas id="hostSpectrum" class="spectrum-canvas"></canvas>
+                    </div>
+                    
+                    <div class="spectrum-container">
+                        <div class="spectrum-title">Watermark Audio Spectrum</div>
+                        <canvas id="watermarkSpectrum" class="spectrum-canvas"></canvas>
+                    </div>
+                    
+                    <div class="spectrum-container">
+                        <div class="spectrum-title">Watermarked Audio Spectrum</div>
+                        <canvas id="watermarkedSpectrum" class="spectrum-canvas"></canvas>
+                    </div>
+                </div>
+                
+                <h2>Audio Playback & Comparison</h2>
+                
+                <div class="audio-players">
+                    <div class="audio-player">
+                        <div class="player-title">Original Host Audio</div>
+                        <div class="player-controls">
+                            <button class="play-btn" id="hostPlayBtn">▶</button>
+                            <div class="progress-container" id="hostProgressContainer">
+                                <div class="progress-bar" id="hostProgressBar"></div>
+                            </div>
+                        </div>
+                        <div class="time-display">
+                            <span id="hostCurrentTime">0:00</span>
+                            <span id="hostDuration">0:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" min="0" max="100" value="80" class="volume-slider" id="hostVolumeSlider">
+                        </div>
+                    </div>
+                    
+                    <div class="audio-player">
+                        <div class="player-title">Original Watermark Audio</div>
+                        <div class="player-controls">
+                            <button class="play-btn" id="watermarkPlayBtn">▶</button>
+                            <div class="progress-container" id="watermarkProgressContainer">
+                                <div class="progress-bar" id="watermarkProgressBar"></div>
+                            </div>
+                        </div>
+                        <div class="time-display">
+                            <span id="watermarkCurrentTime">0:00</span>
+                            <span id="watermarkDuration">0:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" min="0" max="100" value="80" class="volume-slider" id="watermarkVolumeSlider">
+                        </div>
+                    </div>
+                    
+                    <div class="audio-player">
+                        <div class="player-title">Watermarked Audio (Protected)</div>
+                        <div class="player-controls">
+                            <button class="play-btn" id="watermarkedPlayBtn" disabled>▶</button>
+                            <div class="progress-container" id="watermarkedProgressContainer" style="opacity: 0.5;">
+                                <div class="progress-bar" id="watermarkedProgressBar"></div>
+                            </div>
+                        </div>
+                        <div class="time-display">
+                            <span id="watermarkedCurrentTime">0:00</span>
+                            <span id="watermarkedDuration">0:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" min="0" max="100" value="80" class="volume-slider" id="watermarkedVolumeSlider" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audio-players">
+                    <div class="audio-player">
+                        <div class="player-title">Extracted Watermark Audio</div>
+                        <div class="player-controls">
+                            <button class="play-btn" id="extractedPlayBtn" disabled>▶</button>
+                            <div class="progress-container" id="extractedProgressContainer" style="opacity: 0.5;">
+                                <div class="progress-bar" id="extractedProgressBar"></div>
+                            </div>
+                        </div>
+                        <div class="time-display">
+                            <span id="extractedCurrentTime">0:00</span>
+                            <span id="extractedDuration">0:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" min="0" max="100" value="80" class="volume-slider" id="extractedVolumeSlider" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="download-section" id="downloadSection" style="display: none;">
+                    <button class="download-btn" id="downloadBtn">
+                        <span>⬇</span> Download Watermarked Audio
+                    </button>
+                    <button class="download-btn" id="downloadExtractedBtn" style="background: #2ecc71; margin-left: 15px;">
+                        <span>⬇</span> Download Extracted Watermark
+                    </button>
+                </div>
+                
+                <div class="status-message" id="statusMessage" style="display: none;"></div>
+            </section>
+        </div>
+
+        <!-- Authentication Modal -->
+        <div class="authentication-modal" id="authModal">
+            <div class="modal-content">
+                <h3 class="modal-title">Authentication Required</h3>
+                <div class="control-group">
+                    <h3>Enter Password to Extract Watermark</h3>
+                    <input type="password" class="password-input" id="retrievePassword" placeholder="Enter authentication password">
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" id="submitPassword">Extract Watermark</button>
+                    <button class="btn btn-secondary" id="cancelAuth">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Advanced Audio Watermarking System | GBT-SVD & Deep Learning Implementation | Secure RF Transmission</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const hostUploadArea = document.getElementById('hostUploadArea');
+            const hostFileInput = document.getElementById('hostFileInput');
+            const hostFileInfo = document.getElementById('hostFileInfo');
+            const hostFileName = document.getElementById('hostFileName');
+            const hostFileSize = document.getElementById('hostFileSize');
+            const hostFileDuration = document.getElementById('hostFileDuration');
+            const hostFileType = document.getElementById('hostFileType');
+            
+            const watermarkUploadArea = document.getElementById('watermarkUploadArea');
+            const watermarkFileInput = document.getElementById('watermarkFileInput');
+            const watermarkFileInfo = document.getElementById('watermarkFileInfo');
+            const watermarkFileName = document.getElementById('watermarkFileName');
+            const watermarkFileSize = document.getElementById('watermarkFileSize');
+            const watermarkFileDuration = document.getElementById('watermarkFileDuration');
+            const watermarkFileType = document.getElementById('watermarkFileType');
+            
+            const strengthSlider = document.getElementById('strengthSlider');
+            const strengthValue = document.getElementById('strengthValue');
+            const embedBtn = document.getElementById('embedBtn');
+            const authenticateBtn = document.getElementById('authenticateBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadExtractedBtn = document.getElementById('downloadExtractedBtn');
+            const authPassword = document.getElementById('authPassword');
+            const methodDescription = document.getElementById('methodDescription');
+            
+            // Authentication modal elements
+            const authModal = document.getElementById('authModal');
+            const retrievePassword = document.getElementById('retrievePassword');
+            const submitPassword = document.getElementById('submitPassword');
+            const cancelAuth = document.getElementById('cancelAuth');
+            
+            // Spectrum canvases
+            const hostSpectrumCanvas = document.getElementById('hostSpectrum');
+            const watermarkSpectrumCanvas = document.getElementById('watermarkSpectrum');
+            const watermarkedSpectrumCanvas = document.getElementById('watermarkedSpectrum');
+            
+            // Audio players
+            const hostPlayBtn = document.getElementById('hostPlayBtn');
+            const hostProgressContainer = document.getElementById('hostProgressContainer');
+            const hostProgressBar = document.getElementById('hostProgressBar');
+            const hostCurrentTime = document.getElementById('hostCurrentTime');
+            const hostDuration = document.getElementById('hostDuration');
+            const hostVolumeSlider = document.getElementById('hostVolumeSlider');
+            
+            const watermarkPlayBtn = document.getElementById('watermarkPlayBtn');
+            const watermarkProgressContainer = document.getElementById('watermarkProgressContainer');
+            const watermarkProgressBar = document.getElementById('watermarkProgressBar');
+            const watermarkCurrentTime = document.getElementById('watermarkCurrentTime');
+            const watermarkDuration = document.getElementById('watermarkDuration');
+            const watermarkVolumeSlider = document.getElementById('watermarkVolumeSlider');
+            
+            const watermarkedPlayBtn = document.getElementById('watermarkedPlayBtn');
+            const watermarkedProgressContainer = document.getElementById('watermarkedProgressContainer');
+            const watermarkedProgressBar = document.getElementById('watermarkedProgressBar');
+            const watermarkedCurrentTime = document.getElementById('watermarkedCurrentTime');
+            const watermarkedDuration = document.getElementById('watermarkedDuration');
+            const watermarkedVolumeSlider = document.getElementById('watermarkedVolumeSlider');
+            
+            const extractedPlayBtn = document.getElementById('extractedPlayBtn');
+            const extractedProgressContainer = document.getElementById('extractedProgressContainer');
+            const extractedProgressBar = document.getElementById('extractedProgressBar');
+            const extractedCurrentTime = document.getElementById('extractedCurrentTime');
+            const extractedDuration = document.getElementById('extractedDuration');
+            const extractedVolumeSlider = document.getElementById('extractedVolumeSlider');
+            
+            // Audio context and variables
+            let audioContext;
+            let hostAudioElement;
+            let watermarkAudioElement;
+            let watermarkedAudioElement;
+            let extractedAudioElement;
+            
+            let hostIsPlaying = false;
+            let watermarkIsPlaying = false;
+            let watermarkedIsPlaying = false;
+            let extractedIsPlaying = false;
+            
+            let hostSourceNode, watermarkSourceNode, watermarkedSourceNode, extractedSourceNode;
+            let hostAnalyser, watermarkAnalyser, watermarkedAnalyser, extractedAnalyser;
+            let hostAnimationId, watermarkAnimationId, watermarkedAnimationId, extractedAnimationId;
+            
+            // Store the password for authentication
+            let storedPassword = '';
+            
+            // Store watermark method descriptions
+            const methodDescriptions = {
+                'gbt-svd': '<span class="method-highlight">GBT-SVD:</span> Graph-Based Transform with Singular Value Decomposition. Robust against compression and noise attacks. Based on Farzaneh & Toroghi research.',
+                'deep-learning': '<span class="method-highlight">Deep Learning (WAKE):</span> Key-controllable framework using invertible neural networks. Supports multiple embeddings and variable-length watermarks.',
+                'hybrid': '<span class="method-highlight">Hybrid Approach:</span> Combines GBT-SVD robustness with deep learning flexibility. Optimal for RF transmission environments.'
+            };
+            
+            // Event Listeners
+            hostUploadArea.addEventListener('click', () => hostFileInput.click());
+            watermarkUploadArea.addEventListener('click', () => watermarkFileInput.click());
+            
+            hostFileInput.addEventListener('change', () => handleFileSelect('host'));
+            watermarkFileInput.addEventListener('change', () => handleFileSelect('watermark'));
+            
+            // Drag and drop functionality
+            setupDragAndDrop(hostUploadArea, hostFileInput, 'host');
+            setupDragAndDrop(watermarkUploadArea, watermarkFileInput, 'watermark');
+            
+            strengthSlider.addEventListener('input', updateStrengthValue);
+            
+            // Watermark method selection
+            document.querySelectorAll('input[name="watermarkMethod"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    methodDescription.innerHTML = methodDescriptions[this.value];
+                });
+            });
+            
+            embedBtn.addEventListener('click', embedWatermark);
+            authenticateBtn.addEventListener('click', showAuthModal);
+            
+            // Audio player controls
+            hostPlayBtn.addEventListener('click', () => togglePlayback('host'));
+            hostProgressContainer.addEventListener('click', (e) => setProgress(e, 'host'));
+            hostVolumeSlider.addEventListener('input', () => setVolume('host'));
+            
+            watermarkPlayBtn.addEventListener('click', () => togglePlayback('watermark'));
+            watermarkProgressContainer.addEventListener('click', (e) => setProgress(e, 'watermark'));
+            watermarkVolumeSlider.addEventListener('input', () => setVolume('watermark'));
+            
+            watermarkedPlayBtn.addEventListener('click', () => togglePlayback('watermarked'));
+            watermarkedProgressContainer.addEventListener('click', (e) => setProgress(e, 'watermarked'));
+            watermarkedVolumeSlider.addEventListener('input', () => setVolume('watermarked'));
+            
+            extractedPlayBtn.addEventListener('click', () => togglePlayback('extracted'));
+            extractedProgressContainer.addEventListener('click', (e) => setProgress(e, 'extracted'));
+            extractedVolumeSlider.addEventListener('input', () => setVolume('extracted'));
+            
+            downloadBtn.addEventListener('click', downloadWatermarkedAudio);
+            downloadExtractedBtn.addEventListener('click', downloadExtractedWatermark);
+            
+            // Authentication modal events
+            submitPassword.addEventListener('click', authenticateAndExtract);
+            cancelAuth.addEventListener('click', closeAuthModal);
+            
+            // Initialize spectrum canvases
+            const hostCtx = hostSpectrumCanvas.getContext('2d');
+            const watermarkCtx = watermarkSpectrumCanvas.getContext('2d');
+            const watermarkedCtx = watermarkedSpectrumCanvas.getContext('2d');
+            
+            // Functions
+            function setupDragAndDrop(uploadArea, fileInput, type) {
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    
+                    if (e.dataTransfer.files.length) {
+                        fileInput.files = e.dataTransfer.files;
+                        if (type === 'host') {
+                            handleFileSelect('host');
+                        } else {
+                            handleFileSelect('watermark');
+                        }
+                    }
+                });
+            }
+            
+            function handleFileSelect(type) {
+                const fileInput = type === 'host' ? hostFileInput : watermarkFileInput;
+                const fileInfo = type === 'host' ? hostFileInfo : watermarkFileInfo;
+                const fileName = type === 'host' ? hostFileName : watermarkFileName;
+                const fileSize = type === 'host' ? hostFileSize : watermarkFileSize;
+                const fileDuration = type === 'host' ? hostFileDuration : watermarkFileDuration;
+                const fileType = type === 'host' ? hostFileType : watermarkFileType;
+                const audioElement = type === 'host' ? hostAudioElement : watermarkAudioElement;
+                
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    
+                    // Display file info
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    fileType.textContent = getFileExtension(file.name).toUpperCase();
+                    
+                    // Create object URL for the file
+                    const objectUrl = URL.createObjectURL(file);
+                    
+                    // Create audio element
+                    const newAudioElement = new Audio(objectUrl);
+                    
+                    if (type === 'host') {
+                        hostAudioElement = newAudioElement;
+                    } else {
+                        watermarkAudioElement = newAudioElement;
+                    }
+                    
+                    // Set up audio element event listeners
+                    newAudioElement.addEventListener('loadedmetadata', () => {
+                        fileDuration.textContent = formatTime(newAudioElement.duration);
+                        
+                        if (type === 'host') {
+                            hostDuration.textContent = formatTime(newAudioElement.duration);
+                        } else {
+                            watermarkDuration.textContent = formatTime(newAudioElement.duration);
+                        }
+                    });
+                    
+                    newAudioElement.addEventListener('timeupdate', () => updateProgress(type));
+                    newAudioElement.addEventListener('ended', () => {
+                        if (type === 'host') {
+                            hostIsPlaying = false;
+                            hostPlayBtn.textContent = '▶';
+                            cancelAnimationFrame(hostAnimationId);
+                        } else {
+                            watermarkIsPlaying = false;
+                            watermarkPlayBtn.textContent = '▶';
+                            cancelAnimationFrame(watermarkAnimationId);
+                        }
+                    });
+                    
+                    fileInfo.style.display = 'block';
+                    
+                    // Show success message
+                    showStatus(`${type === 'host' ? 'Host' : 'Watermark'} audio uploaded successfully!`, 'success');
+                    
+                    // Initialize audio context for visualization if not already done
+                    if (!audioContext) {
+                        initAudioContext();
+                    }
+                    
+                    // Draw spectrum visualization
+                    drawSpectrum(type);
+                }
+            }
+            
+            function initAudioContext() {
+                // Create audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            function drawSpectrum(type) {
+                const canvas = type === 'host' ? hostSpectrumCanvas : watermarkSpectrumCanvas;
+                const ctx = type === 'host' ? hostCtx : watermarkCtx;
+                const color = type === 'host' ? '#4cc9f0' : '#f72585';
+                
+                drawStaticSpectrum(ctx, canvas, color);
+            }
+            
+            function drawStaticSpectrum(ctx, canvas, color) {
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw gradient background
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw frequency lines
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= 10; i++) {
+                    const y = (i / 10) * height;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // Draw spectrum bars (simulated for demo)
+                const barCount = 64;
+                const barWidth = width / barCount;
+                
+                for (let i = 0; i < barCount; i++) {
+                    const barHeight = Math.random() * height * 0.8;
+                    const x = i * barWidth;
+                    const y = height - barHeight;
+                    
+                    // Create gradient for bars
+                    const barGradient = ctx.createLinearGradient(0, y, 0, height);
+                    barGradient.addColorStop(0, color);
+                    barGradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+                    
+                    ctx.fillStyle = barGradient;
+                    ctx.fillRect(x, y, barWidth - 1, barHeight);
+                }
+            }
+            
+            function togglePlayback(type) {
+                let audioElement, playBtn, isPlaying, analyser, animationId;
+                
+                switch(type) {
+                    case 'host':
+                        audioElement = hostAudioElement;
+                        playBtn = hostPlayBtn;
+                        isPlaying = hostIsPlaying;
+                        analyser = hostAnalyser;
+                        animationId = hostAnimationId;
+                        break;
+                    case 'watermark':
+                        audioElement = watermarkAudioElement;
+                        playBtn = watermarkPlayBtn;
+                        isPlaying = watermarkIsPlaying;
+                        analyser = watermarkAnalyser;
+                        animationId = watermarkAnimationId;
+                        break;
+                    case 'watermarked':
+                        audioElement = watermarkedAudioElement;
+                        playBtn = watermarkedPlayBtn;
+                        isPlaying = watermarkedIsPlaying;
+                        analyser = watermarkedAnalyser;
+                        animationId = watermarkedAnimationId;
+                        break;
+                    case 'extracted':
+                        audioElement = extractedAudioElement;
+                        playBtn = extractedPlayBtn;
+                        isPlaying = extractedIsPlaying;
+                        analyser = extractedAnalyser;
+                        animationId = extractedAnimationId;
+                        break;
+                }
+                
+                if (!audioElement) return;
+                
+                if (isPlaying) {
+                    audioElement.pause();
+                    playBtn.textContent = '▶';
+                    cancelAnimationFrame(animationId);
+                    
+                    // Update the playing state
+                    switch(type) {
+                        case 'host': hostIsPlaying = false; break;
+                        case 'watermark': watermarkIsPlaying = false; break;
+                        case 'watermarked': watermarkedIsPlaying = false; break;
+                        case 'extracted': extractedIsPlaying = false; break;
+                    }
+                } else {
+                    // Resume audio context if it was suspended
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    
+                    audioElement.play();
+                    playBtn.textContent = '❚❚';
+                    
+                    // Update the playing state
+                    switch(type) {
+                        case 'host': hostIsPlaying = true; break;
+                        case 'watermark': watermarkIsPlaying = true; break;
+                        case 'watermarked': watermarkedIsPlaying = true; break;
+                        case 'extracted': extractedIsPlaying = true; break;
+                    }
+                    
+                    // Start visualization if analyser exists
+                    if (analyser) {
+                        visualizeSpectrum(analyser, type);
+                    }
+                }
+            }
+            
+            function visualizeSpectrum(analyser, type) {
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                let canvas, ctx, color, animationId;
+                
+                switch(type) {
+                    case 'host':
+                        canvas = hostSpectrumCanvas;
+                        ctx = hostCtx;
+                        color = '#4cc9f0';
+                        animationId = hostAnimationId;
+                        break;
+                    case 'watermark':
+                        canvas = watermarkSpectrumCanvas;
+                        ctx = watermarkCtx;
+                        color = '#f72585';
+                        animationId = watermarkAnimationId;
+                        break;
+                    case 'watermarked':
+                        canvas = watermarkedSpectrumCanvas;
+                        ctx = watermarkedCtx;
+                        color = '#2ecc71';
+                        animationId = watermarkedAnimationId;
+                        break;
+                }
+                
+                function draw() {
+                    switch(type) {
+                        case 'host': hostAnimationId = requestAnimationFrame(draw); break;
+                        case 'watermark': watermarkAnimationId = requestAnimationFrame(draw); break;
+                        case 'watermarked': watermarkedAnimationId = requestAnimationFrame(draw); break;
+                    }
+                    
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    const width = canvas.width;
+                    const height = canvas.height;
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Draw gradient background
+                    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, width, height);
+                    
+                    // Draw frequency lines
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.lineWidth = 1;
+                    
+                    for (let i = 0; i <= 10; i++) {
+                        const y = (i / 10) * height;
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                    }
+                    
+                    // Draw spectrum bars
+                    const barWidth = width / bufferLength;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        const barHeight = (dataArray[i] / 255) * height;
+                        const x = i * barWidth;
+                        const y = height - barHeight;
+                        
+                        // Create gradient for bars
+                        const barGradient = ctx.createLinearGradient(0, y, 0, height);
+                        barGradient.addColorStop(0, color);
+                        barGradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+                        
+                        ctx.fillStyle = barGradient;
+                        ctx.fillRect(x, y, barWidth - 1, barHeight);
+                    }
+                }
+                
+                draw();
+            }
+            
+            function updateProgress(type) {
+                let audioElement, progressBar, currentTimeEl;
+                
+                switch(type) {
+                    case 'host':
+                        audioElement = hostAudioElement;
+                        progressBar = hostProgressBar;
+                        currentTimeEl = hostCurrentTime;
+                        break;
+                    case 'watermark':
+                        audioElement = watermarkAudioElement;
+                        progressBar = watermarkProgressBar;
+                        currentTimeEl = watermarkCurrentTime;
+                        break;
+                    case 'watermarked':
+                        audioElement = watermarkedAudioElement;
+                        progressBar = watermarkedProgressBar;
+                        currentTimeEl = watermarkedCurrentTime;
+                        break;
+                    case 'extracted':
+                        audioElement = extractedAudioElement;
+                        progressBar = extractedProgressBar;
+                        currentTimeEl = extractedCurrentTime;
+                        break;
+                }
+                
+                if (!audioElement) return;
+                
+                const progressPercent = (audioElement.currentTime / audioElement.duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTimeEl.textContent = formatTime(audioElement.currentTime);
+            }
+            
+            function setProgress(e, type) {
+                let audioElement;
+                
+                switch(type) {
+                    case 'host': audioElement = hostAudioElement; break;
+                    case 'watermark': audioElement = watermarkAudioElement; break;
+                    case 'watermarked': audioElement = watermarkedAudioElement; break;
+                    case 'extracted': audioElement = extractedAudioElement; break;
+                }
+                
+                if (!audioElement) return;
+                
+                const width = e.currentTarget.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audioElement.duration;
+                
+                audioElement.currentTime = (clickX / width) * duration;
+            }
+            
+            function setVolume(type) {
+                let audioElement, volumeSlider;
+                
+                switch(type) {
+                    case 'host':
+                        audioElement = hostAudioElement;
+                        volumeSlider = hostVolumeSlider;
+                        break;
+                    case 'watermark':
+                        audioElement = watermarkAudioElement;
+                        volumeSlider = watermarkVolumeSlider;
+                        break;
+                    case 'watermarked':
+                        audioElement = watermarkedAudioElement;
+                        volumeSlider = watermarkedVolumeSlider;
+                        break;
+                    case 'extracted':
+                        audioElement = extractedAudioElement;
+                        volumeSlider = extractedVolumeSlider;
+                        break;
+                }
+                
+                if (!audioElement) return;
+                
+                audioElement.volume = volumeSlider.value / 100;
+            }
+            
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function getFileExtension(filename) {
+                return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2);
+            }
+            
+            function updateStrengthValue() {
+                const value = strengthSlider.value;
+                let strengthText = '';
+                
+                if (value <= 3) {
+                    strengthText = 'Low';
+                } else if (value <= 7) {
+                    strengthText = 'Medium';
+                } else {
+                    strengthText = 'High';
+                }
+                
+                strengthValue.textContent = strengthText;
+            }
+            
+            function embedWatermark() {
+                if (!hostFileInput.files.length || !watermarkFileInput.files.length) {
+                    showStatus('Please upload both host audio and watermark audio files.', 'error');
+                    return;
+                }
+                
+                // Store the password for later authentication
+                storedPassword = authPassword.value;
+                if (!storedPassword) {
+                    showStatus('Please set an authentication password.', 'error');
+                    return;
+                }
+                
+                const method = document.querySelector('input[name="watermarkMethod"]:checked').value;
+                const strength = strengthSlider.value;
+                const rfOptimization = document.querySelector('input[name="rfOptimization"]:checked').value;
+                
+                // Simulate watermark embedding process
+                showStatus(`Embedding watermark using ${method.toUpperCase()} method with ${rfOptimization} RF optimization...`, 'success');
+                
+                setTimeout(() => {
+                    showStatus('Watermark audio embedded successfully! Audio is now password-protected.', 'success');
+                    
+                    // Create a simulated watermarked audio (in real implementation, this would be processed)
+                    const hostObjectUrl = URL.createObjectURL(hostFileInput.files[0]);
+                    watermarkedAudioElement = new Audio(hostObjectUrl);
+                    
+                    // Set up watermarked audio element
+                    watermarkedAudioElement.addEventListener('loadedmetadata', () => {
+                        watermarkedDuration.textContent = formatTime(watermarkedAudioElement.duration);
+                    });
+                    
+                    watermarkedAudioElement.addEventListener('timeupdate', () => updateProgress('watermarked'));
+                    watermarkedAudioElement.addEventListener('ended', () => {
+                        watermarkedIsPlaying = false;
+                        watermarkedPlayBtn.textContent = '▶';
+                        cancelAnimationFrame(watermarkedAnimationId);
+                    });
+                    
+                    // Enable watermarked audio controls (but require authentication for playback)
+                    watermarkedPlayBtn.disabled = false;
+                    watermarkedProgressContainer.style.opacity = '1';
+                    watermarkedVolumeSlider.disabled = false;
+                    
+                    // Draw watermarked spectrum
+                    drawStaticSpectrum(watermarkedCtx, watermarkedSpectrumCanvas, '#2ecc71');
+                    
+                    // Show download button after processing
+                    downloadSection.style.display = 'block';
+                    
+                    // Clear the password field for security
+                    authPassword.value = '';
+                }, 3000);
+            }
+            
+            function showAuthModal() {
+                if (!hostFileInput.files.length || !watermarkFileInput.files.length) {
+                    showStatus('Please upload both host and watermark audio files first.', 'error');
+                    return;
+                }
+                
+                if (!storedPassword) {
+                    showStatus('No watermarked audio available. Please embed a watermark first.', 'error');
+                    return;
+                }
+                
+                // Show authentication modal
+                authModal.style.display = 'flex';
+                retrievePassword.value = '';
+                retrievePassword.focus();
+            }
+            
+            function closeAuthModal() {
+                authModal.style.display = 'none';
+                retrievePassword.value = '';
+            }
+            
+            function authenticateAndExtract() {
+                const enteredPassword = retrievePassword.value;
+                
+                if (!enteredPassword) {
+                    showStatus('Please enter the authentication password.', 'error');
+                    return;
+                }
+                
+                if (enteredPassword === storedPassword) {
+                    showStatus('Authentication successful! Extracting watermark audio...', 'success');
+                    closeAuthModal();
+                    
+                    // Simulate watermark extraction
+                    setTimeout(() => {
+                        showStatus('Watermark audio extracted successfully!', 'success');
+                        
+                        // Create a simulated extracted watermark audio
+                        const watermarkObjectUrl = URL.createObjectURL(watermarkFileInput.files[0]);
+                        extractedAudioElement = new Audio(watermarkObjectUrl);
+                        
+                        // Set up extracted audio element
+                        extractedAudioElement.addEventListener('loadedmetadata', () => {
+                            extractedDuration.textContent = formatTime(extractedAudioElement.duration);
+                        });
+                        
+                        extractedAudioElement.addEventListener('timeupdate', () => updateProgress('extracted'));
+                        extractedAudioElement.addEventListener('ended', () => {
+                            extractedIsPlaying = false;
+                            extractedPlayBtn.textContent = '▶';
+                            cancelAnimationFrame(extractedAnimationId);
+                        });
+                        
+                        // Enable extracted audio controls
+                        extractedPlayBtn.disabled = false;
+                        extractedProgressContainer.style.opacity = '1';
+                        extractedVolumeSlider.disabled = false;
+                        
+                    }, 2000);
+                } else {
+                    showStatus('Authentication failed! Incorrect password.', 'error');
+                    retrievePassword.value = '';
+                    retrievePassword.focus();
+                }
+            }
+            
+            function downloadWatermarkedAudio() {
+                // Check if user is authenticated
+                if (watermarkedPlayBtn.disabled) {
+                    showStatus('Please embed a watermark first.', 'error');
+                    return;
+                }
+                
+                // In a real application, this would download the processed file
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(hostFileInput.files[0]);
+                link.download = 'watermarked_audio.wav';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('Watermarked audio download started!', 'success');
+            }
+            
+            function downloadExtractedWatermark() {
+                // Check if extraction was performed
+                if (extractedPlayBtn.disabled) {
+                    showStatus('Please extract the watermark first.', 'error');
+                    return;
+                }
+                
+                // In a real application, this would download the extracted watermark
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(watermarkFileInput.files[0]);
+                link.download = 'extracted_watermark.wav';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('Extracted watermark download started!', 'success');
+            }
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message';
+                
+                if (type === 'success') {
+                    statusMessage.classList.add('status-success');
+                } else if (type === 'error') {
+                    statusMessage.classList.add('status-error');
+                }
+                
+                statusMessage.style.display = 'block';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Initialize
+            updateStrengthValue();
+            
+            // Set canvas dimensions
+            const canvases = [hostSpectrumCanvas, watermarkSpectrumCanvas, watermarkedSpectrumCanvas];
+            canvases.forEach(canvas => {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            });
+            
+            // Initially disable watermarked and extracted audio controls
+            watermarkedPlayBtn.disabled = true;
+            watermarkedProgressContainer.style.opacity = '0.5';
+            watermarkedVolumeSlider.disabled = true;
+            
+            extractedPlayBtn.disabled = true;
+            extractedProgressContainer.style.opacity = '0.5';
+            extractedVolumeSlider.disabled = true;
+        });
+    </script>
+</body>
+</html>
